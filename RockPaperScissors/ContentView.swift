@@ -8,55 +8,86 @@ struct ContentView: View {
     @State private var cpuMove = Int.random(in: 0..<3)
     @State private var winOrLose = Bool.random()
     
-    @State private var showingRestult = false
+    @State private var showingResult = false
+    @State private var resultText = ""
     
     @State private var playerScore = 0
     
+    @State private var questionNumber = 1
+    @State private var maxQuestionNumber = 4
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
             ZStack {
                 VStack {
+                    Text("Question: \(questionNumber)/\(maxQuestionNumber)")
+                    
                     Text("Score: \(playerScore)")
                     
-                    Text("Computer Move: \(moves[cpuMove])")
-                    
-                    Text((winOrLose) ? "What wins against \(moves[cpuMove])" : "What loses against \(moves[cpuMove])?")
+                    Text((winOrLose) ? "What wins against \(moves[cpuMove])?" : "What loses against \(moves[cpuMove])?")
                     
                     HStack {
                         ForEach(moves, id: \.self) { move in
                             Button {
-                                if isAnswerCorrect(move) {
-                                    print("Correct")
-                                } else {
-                                    print("Incorrect")
-                                }
+                                isAnswerCorrect(move)
                             } label : {
                                 Text(displayEmoji(for: move))
                                     .font(.largeTitle)
+                            }
+                            .alert(resultText, isPresented: $showingResult) {
+                                questionNumber == maxQuestionNumber ?
+                                Button("Restart") {restartGame()} : Button("Next Question") {nextQuestion()}
+                            } message: {
+                                Text(giveFullAnswerDescription())
                             }
                         }
                     }
                 }
             }
-        }
     }
     
     func nextQuestion() {
-        cpuMove = Int.random(in: 0..<3)
-        winOrLose = Bool.random()
+        if questionNumber == maxQuestionNumber {
+            restartGame()
+        } else {
+            questionNumber += 1
+            cpuMove = Int.random(in: 0..<3)
+            winOrLose = Bool.random()
+        }
     }
     
-    func isAnswerCorrect(_ answer: String) -> Bool {
+    func getCorrectAnswer() -> String {
+        var correctAnswer = ""
+        
         switch winOrLose {
         case true:
-            return answer == whatBeatsMoves[cpuMove]
+            correctAnswer = whatBeatsMoves[cpuMove]
         case false:
-            return answer == whatLosesToMoves[cpuMove]
+            correctAnswer = whatLosesToMoves[cpuMove]
         }
+        return correctAnswer
+    }
+    
+    func isAnswerCorrect(_ answer: String) {
+        if getCorrectAnswer() == answer {
+            playerScore += 1
+            resultText = "Correct!"
+            
+        } else {
+            resultText = "Incorrect!"
+        }
+        
+        showingResult = true
+    }
+    
+    func giveFullAnswerDescription() -> String {
+        (questionNumber == maxQuestionNumber) ?
+        "Game Over! Your score: \(playerScore)/\(maxQuestionNumber)" :
+        getAnswerDescription()
+    }
+    
+    func getAnswerDescription() -> String {
+        winOrLose ?
+        "\(getCorrectAnswer()) beats \(moves[cpuMove])" : "\(getCorrectAnswer()) loses against \(moves[cpuMove])"
     }
     
     func displayEmoji (for move: String) -> String {
@@ -70,6 +101,11 @@ struct ContentView: View {
         default:
             return "None"
         }
+    }
+    
+    func restartGame() {
+        playerScore = 0
+        questionNumber = 1
     }
 }
 
