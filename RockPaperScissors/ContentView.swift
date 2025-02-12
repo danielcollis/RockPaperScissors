@@ -1,48 +1,53 @@
-//
-//  ContentView.swift
-//  RockPaperScissors
-//
-//  Created by Daniel Collis on 2/11/25.
-//
-
 import SwiftUI
 
 struct ContentView: View {
     let moves = ["Rock", "Paper", "Scissors"]
     let whatBeatsMoves = ["Paper", "Scissors", "Rock"]
     let whatLosesToMoves = ["Scissors", "Rock", "Paper"]
+    
     @State private var cpuMove = Int.random(in: 0..<3)
     @State private var winOrLose = Bool.random()
+    
+    @State private var showingRestult = false
     
     @State private var playerScore = 0
     
     var body: some View {
-        ZStack {
-            VStack {
-                Text("Score: \(playerScore)")
-                
-                Text("Computer Move: \(moves[cpuMove])")
-                
-                Text((winOrLose) ? "What wins against \(moves[cpuMove])" : "What loses against \(moves[cpuMove])?")
-                
-                HStack {
-                    ForEach(moves, id: \.self) { move in
-                        Button {
-                            if isAnswerCorrect(move) {
-                                print("Correct")
-                            } else {
-                                print("Incorrect")
+        VStack {
+            Image(systemName: "globe")
+                .imageScale(.large)
+                .foregroundStyle(.tint)
+            Text("Hello, world!")
+            ZStack {
+                VStack {
+                    Text("Score: \(playerScore)")
+                    
+                    Text("Computer Move: \(moves[cpuMove])")
+                    
+                    Text((winOrLose) ? "What wins against \(moves[cpuMove])" : "What loses against \(moves[cpuMove])?")
+                    
+                    HStack {
+                        ForEach(moves, id: \.self) { move in
+                            Button {
+                                if isAnswerCorrect(move) {
+                                    print("Correct")
+                                } else {
+                                    print("Incorrect")
+                                }
+                            } label : {
+                                Text(displayEmoji(for: move))
+                                    .font(.largeTitle)
                             }
-                            winOrLose.toggle()
-                            cpuMove = Int.random(in: 0..<3)
-                        } label : {
-                            Text(displayEmoji(for: move))
-                                .font(.largeTitle)
                         }
                     }
                 }
             }
         }
+    }
+    
+    func nextQuestion() {
+        cpuMove = Int.random(in: 0..<3)
+        winOrLose = Bool.random()
     }
     
     func isAnswerCorrect(_ answer: String) -> Bool {
