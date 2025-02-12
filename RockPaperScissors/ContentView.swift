@@ -14,33 +14,50 @@ struct ContentView: View {
     @State private var playerScore = 0
     
     @State private var questionNumber = 1
-    @State private var maxQuestionNumber = 4
+    @State private var maxQuestionNumber = 5
     
     var body: some View {
             ZStack {
+                AngularGradient(colors: [.blue, .gray, .blue, .gray, .blue], center: .top)
+                    .ignoresSafeArea()
+            
                 VStack {
-                    Text("Question: \(questionNumber)/\(maxQuestionNumber)")
+                    Text("Rock, Paper, Scissors")
+                        .font(.largeTitle)
                     
-                    Text("Score: \(playerScore)")
-                    
-                    Text((winOrLose) ? "What wins against \(moves[cpuMove])?" : "What loses against \(moves[cpuMove])?")
-                    
-                    HStack {
-                        ForEach(moves, id: \.self) { move in
-                            Button {
-                                isAnswerCorrect(move)
-                            } label : {
-                                Text(displayEmoji(for: move))
-                                    .font(.largeTitle)
-                            }
-                            .alert(resultText, isPresented: $showingResult) {
-                                questionNumber == maxQuestionNumber ?
-                                Button("Restart") {restartGame()} : Button("Next Question") {nextQuestion()}
-                            } message: {
-                                Text(giveFullAnswerDescription())
+                    VStack {
+                        Text("Question: \(questionNumber)/\(maxQuestionNumber)")
+                        
+                        Text("Score: \(playerScore)")
+                        
+                        Text((winOrLose) ? "What wins against " : "What loses against ") +
+                        Text(moves[cpuMove])
+                            .foregroundStyle(.red) +
+                        Text("?")
+                        
+                        HStack {
+                            ForEach(moves, id: \.self) { move in
+                                Button {
+                                    isAnswerCorrect(move)
+                                } label : {
+                                    Text(displayEmoji(for: move))
+                                        .font(.largeTitle)
+                                        .padding(15)
+                                }
+                                .background(Color.blue.opacity(0.5))
+                                .clipShape(.circle)
+                                .alert(resultText, isPresented: $showingResult) {
+                                    questionNumber == maxQuestionNumber ?
+                                    Button("Restart") {restartGame()} : Button("Next Question") {nextQuestion()}
+                                } message: {
+                                    Text(giveFullAnswerDescription())
+                                }
                             }
                         }
                     }
+                    .padding()
+                    .background(.ultraThinMaterial)
+                    .clipShape(.rect(cornerRadius: 20))
                 }
             }
     }
